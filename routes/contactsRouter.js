@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import {
   getAllContacts,
   getOneContact,
@@ -6,37 +6,45 @@ import {
   createContact,
   updateContact,
   updateStatusContact,
-} from "../controllers/contactsControllers.js";
-import controllerWrapper from "../helpers/controllerWrapper.js";
-import validateBody from "../helpers/validateBody.js";
+} from '../controllers/contactsControllers.js';
+import controllerWrapper from '../helpers/controllerWrapper.js';
+import validateBody from '../helpers/validateBody.js';
 import {
   createContactSchema,
   updateContactSchema,
   updateStatusContactSchema,
-} from "../schemas/contactsSchemas.js";
+} from '../schemas/contactsSchemas.js';
+import { authMiddlewares } from '../middlewares/authMiddlewares.js';
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", controllerWrapper(getAllContacts));
+contactsRouter.get('/', authMiddlewares, controllerWrapper(getAllContacts));
 
-contactsRouter.get("/:id", controllerWrapper(getOneContact));
+contactsRouter.get('/:id', authMiddlewares, controllerWrapper(getOneContact));
 
-contactsRouter.delete("/:id", controllerWrapper(deleteContact));
+contactsRouter.delete(
+  '/:id',
+  authMiddlewares,
+  controllerWrapper(deleteContact)
+);
 
 contactsRouter.post(
-  "/",
+  '/',
+  authMiddlewares,
   validateBody(createContactSchema),
   controllerWrapper(createContact)
 );
 
 contactsRouter.put(
-  "/:id",
+  '/:id',
+  authMiddlewares,
   validateBody(updateContactSchema),
   controllerWrapper(updateContact)
 );
 
 contactsRouter.patch(
-  "/:id/favorite",
+  '/:id/favorite',
+  authMiddlewares,
   validateBody(updateStatusContactSchema),
   controllerWrapper(updateStatusContact)
 );
