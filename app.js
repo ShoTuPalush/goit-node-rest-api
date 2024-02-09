@@ -5,15 +5,23 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import contactsRouter from './routes/contactsRouter.js';
 import usersRouter from './routes/userRouter.js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 const { DB_HOST } = process.env;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
 app.use(morgan('tiny'));
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static('public'));
+app.use('/avatars', express.static(__dirname + '/public'));
 
 app.use('/api/contacts', contactsRouter);
 app.use('/api/users', usersRouter);

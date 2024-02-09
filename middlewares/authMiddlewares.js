@@ -9,7 +9,6 @@ const { JWT_SECRET } = process.env;
 export const authMiddlewares = async (req, res, next) => {
   const authHeader = req.headers.authorization || '';
   const [type, token] = authHeader.split(' ');
-
   if (type !== 'Bearer') {
     next(HttpError(401, 'Not authorized'));
   }
@@ -18,8 +17,12 @@ export const authMiddlewares = async (req, res, next) => {
   }
 
   try {
-    const { id } = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(id);
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (payload.type !== 'access') {
+      next(HttpError(401, 'Not authorized'));
+    }
+
+    const user = await User.findById(payload.userId);
     if (user) {
       if (user.token === token) {
         req.user = user;
