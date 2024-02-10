@@ -9,7 +9,6 @@ const { JWT_SECRET } = process.env;
 export const authMiddlewares = async (req, res, next) => {
   const authHeader = req.headers.authorization || '';
   const [type, token] = authHeader.split(' ');
-
   if (type !== 'Bearer') {
     next(HttpError(401, 'Not authorized'));
   }
