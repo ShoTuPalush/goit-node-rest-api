@@ -4,7 +4,6 @@ import {
   currentUser,
   logOutUser,
   loginUser,
-  refreshToken,
   registerUser,
   updateAvatar,
   updateSubscription,
@@ -48,7 +47,5 @@ usersRouter.patch(
   uploadAvatar.single('avatar'),
   controllerWrapper(updateAvatar)
 );
-
-usersRouter.post('/refresh', controllerWrapper(refreshToken));
 
 export default usersRouter;

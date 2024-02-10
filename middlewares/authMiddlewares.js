@@ -17,12 +17,8 @@ export const authMiddlewares = async (req, res, next) => {
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    if (payload.type !== 'access') {
-      next(HttpError(401, 'Not authorized'));
-    }
-
-    const user = await User.findById(payload.userId);
+    const { id } = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(id);
     if (user) {
       if (user.token === token) {
         req.user = user;
