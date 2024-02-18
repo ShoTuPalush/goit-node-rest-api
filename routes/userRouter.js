@@ -7,11 +7,14 @@ import {
   registerUser,
   updateAvatar,
   updateSubscription,
+  verifyUser,
+  verifyUserTwo,
 } from '../controllers/usersControllers.js';
 import validateBody from '../helpers/validateBody.js';
 import {
   bodyUserSchema,
   subscriptionUserSchema,
+  verifySchema,
 } from '../schemas/usersSchemas.js';
 import { authMiddlewares } from '../middlewares/authMiddlewares.js';
 import { uploadAvatar } from '../middlewares/updateAvatarMiddlewares.js';
@@ -46,6 +49,14 @@ usersRouter.patch(
   authMiddlewares,
   uploadAvatar.single('avatar'),
   controllerWrapper(updateAvatar)
+);
+
+usersRouter.get('/verify/:verificationToken', controllerWrapper(verifyUser));
+
+usersRouter.post(
+  '/verify',
+  validateBody(verifySchema),
+  controllerWrapper(verifyUserTwo)
 );
 
 export default usersRouter;
