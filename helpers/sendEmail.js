@@ -1,4 +1,8 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const { PASSWORD_META } = process.env;
 
 export const sendEmail = async ({ to, subject, html, text = '' }) => {
   const config = {
@@ -7,7 +11,7 @@ export const sendEmail = async ({ to, subject, html, text = '' }) => {
     secure: true,
     auth: {
       user: 'nodejsgoittest@meta.ua',
-      pass: '96357821MakS,',
+      pass: PASSWORD_META,
     },
   };
 
