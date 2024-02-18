@@ -7,6 +7,8 @@ import fs from 'fs/promises';
 import Jimp from 'jimp';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { v4 } from 'uuid';
+import { sendEmail } from '../helpers/sendEmail.js';
 
 dotenv.config();
 const { JWT_SECRET } = process.env;
@@ -16,11 +18,18 @@ export const registerUser = async (req, res) => {
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
   const avatarURL = gravatar.url('users@gmail.com', { s: '250' });
+  const verificationToken = v4();
   try {
     const result = await User.create({
       email,
       password: hashedPassword,
       avatarURL,
+      verificationToken,
+    });
+    sendEmail({
+      to: email,
+      subject: 'Please confirm your email',
+      html: `<a href='http://localhost:3000/users/verify/${verificationToken}'>Confirm verication email</a>`,
     });
     res
       .status(201)
@@ -38,6 +47,9 @@ export const loginUser = async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) {
     throw HttpError(401, 'Email or password is wrong');
+  }
+  if (!user.verify) {
+    throw HttpError(401, 'Email is not verifacation');
   }
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
@@ -107,4 +119,34 @@ export const updateAvatar = async (req, res) => {
   } else {
     throw HttpError(401, 'Not authorized');
   }
+};
+
+export const verifyUser = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+  res.status(200).json({ message: 'Verification successful' });
+};
+
+export const verifyUserTwo = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+  if (user.verify) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+  sendEmail({
+    to: email,
+    subject: 'Please confirm your email',
+    html: `<a href='http://localhost:3000/users/verify/${user.verificationToken}'>Confirm verication email</a>`,
+  });
+  res.status(200).json({ message: 'Verification email sent' });
 };
