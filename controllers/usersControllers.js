@@ -87,6 +87,7 @@ export const currentUser = async (req, res) => {
 
 export const updateSubscription = async (req, res) => {
   const { user } = req;
+  console.log('putin hui');
   if (user) {
     const result = await User.findByIdAndUpdate(user._id, req.body, {
       new: true,
